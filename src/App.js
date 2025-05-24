@@ -1,108 +1,279 @@
+// import "./App.css";
+// import { useEffect, useState } from "react";
 
-import './App.css';
-import { useState } from 'react';
+// function App() {
+//   const [name, setName] = useState("");
+//   const [price, setPrice] = useState("");
+//   const [datetime, setDatetime] = useState("");
+//   const [description, setDescription] = useState("");
+//   const [transactions, setTransactions] = useState([]);
+//   const [errorMessage, setErrorMessage] = useState(null);
+
+//   const API_URL = process.env.REACT_APP_API_URL;
+
+//   useEffect(() => {
+//     fetchTransactions();
+//   }, []);
+
+//   async function fetchTransactions() {
+//     try {
+//       const response = await fetch(`${API_URL}/transaction`);
+//       if (!response.ok) throw new Error("Failed to fetch transactions");
+//       const data = await response.json();
+//       setTransactions(data);
+//       setErrorMessage(null);
+//     } catch (error) {
+//       setErrorMessage(error.message);
+//     }
+//   }
+
+//   async function addNewTransaction(event) {
+//     event.preventDefault();
+//     if (!name || !price || !datetime || !description) {
+//       setErrorMessage("All fields are required.");
+//       return;
+//     }
+//     if (isNaN(price) || Number(price) <= 0) {
+//       setErrorMessage("Price must be a positive number.");
+//       return;
+//     }
+//     try {
+//       const response = await fetch(`${API_URL}/transaction`, {
+//         method: "POST",
+//         headers: { "Content-Type": "application/json" },
+//         body: JSON.stringify({
+//           name,
+//           price: Number(price),
+//           description,
+//           datetime,
+//         }),
+//       });
+//       if (!response.ok) {
+//         const errorData = await response.json();
+//         throw new Error(errorData.error || "Failed to add transaction");
+//       }
+//       const newTransaction = await response.json();
+//       setTransactions((prev) => [...prev, newTransaction]);
+//       setName("");
+//       setPrice("");
+//       setDatetime("");
+//       setDescription("");
+//       setErrorMessage(null);
+//     } catch (error) {
+//       setErrorMessage(error.message);
+//     }
+//   }
+
+//   const balance = transactions.reduce((sum, t) => sum + t.price, 0);
+
+//   return (
+//     <main>
+//       <h1>Balance: {balance}</h1>
+//       {errorMessage && <div style={{ color: "red" }}>{errorMessage}</div>}
+
+//       <form onSubmit={addNewTransaction}>
+//         <div className="basic">
+//           <input
+//             type="text"
+//             value={name}
+//             onChange={(e) => setName(e.target.value)}
+//             placeholder="Name"
+//           />
+//           <input
+//             type="number"
+//             value={price}
+//             onChange={(e) => setPrice(e.target.value)}
+//             placeholder="Price"
+//           />
+//           <input
+//             type="datetime-local"
+//             value={datetime}
+//             onChange={(e) => setDatetime(e.target.value)}
+//           />
+//         </div>
+
+//         <div className="description">
+//           <input
+//             type="text"
+//             placeholder="Description"
+//             value={description}
+//             onChange={(e) => setDescription(e.target.value)}
+//           />
+//         </div>
+
+//         <button type="submit">Add new transaction</button>
+//       </form>
+
+//       <div className="transactions">
+//         {transactions.length > 0 &&
+//           transactions.map((transaction, index) => (
+//             <div className="transaction" key={transaction._id || index}>
+//               <div className="left">
+//                 <div className="name">{transaction.name}</div>
+//                 <div className="description">{transaction.description}</div>
+//               </div>
+//               <div className="right">
+//                 <div
+//                   className={
+//                     "price " + (transaction.price < 0 ? "red" : "green")
+//                   }
+//                 >
+//                   {transaction.price}
+//                 </div>
+//                 <div className="datetime">
+//                   {new Date(transaction.datetime).toLocaleString()}
+//                 </div>
+//               </div>
+//             </div>
+//           ))}
+//       </div>
+//     </main>
+//   );
+// }
+
+// export default App;
+import "./App.css";
+import { useEffect, useState } from "react";
 
 function App() {
   const [name, setName] = useState("");
   const [price, setPrice] = useState("");
-  const [dateTime, setDateTime] = useState("");
+  const [datetime, setDatetime] = useState("");
   const [description, setDescription] = useState("");
   const [transactions, setTransactions] = useState([]);
-  const [errors, setErrors] = useState({});
   const [errorMessage, setErrorMessage] = useState(null);
 
-  const validateForm = () => {
-    const newErrors = {};
-    if (!name) {
-      newErrors.name = 'Name is required';
-    }
-    if (!description) {
-      newErrors.description = 'Description is required';
-    }
-    if (!dateTime) {
-      newErrors.dateTime = 'Date and time is required';
-    }
-    if (!price) {
-      newErrors.price = 'Price is required';
-    } else if (isNaN(price) || price <= 0) {
-      newErrors.price = 'Invalid price';
-    }
-    return newErrors;
-  };
+  const API_URL = process.env.REACT_APP_API_URL;
 
-  const addNewTransaction = (event) => {
-    event.preventDefault();
-    const newErrors = validateForm();
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
-    } else {
-      setErrors({});
-      const url = process.env.REACT_APP_API_URL + '/transaction';
-      fetch(url, {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ price, name, description, datetime: dateTime }),
-      })
-        .then(response => {
-          if (!response.ok) {
-            throw new Error(response.statusText);
-          }
-          return response.json();
-        })
-        .then(json => {
-          setTransactions([...transactions, json]);
-          setName('');
-          setPrice('');
-          setDateTime('');
-          setDescription('');
-        })
-        .catch(error => {
-          console.error('Error:', error);
-          setErrorMessage(`Failed to add transaction: ${error.message}`);
-        });
-    }
-  };
+  useEffect(() => {
+    fetchTransactions();
+  }, []);
 
-  let balance = 0;
-  for(const transaction of transactions){
-    balance += transaction.price;
+  async function fetchTransactions() {
+    try {
+      const response = await fetch(`${API_URL}/transaction`);
+      if (!response.ok) throw new Error("Failed to fetch transactions");
+      const data = await response.json();
+      setTransactions(data);
+      setErrorMessage(null);
+    } catch (error) {
+      setErrorMessage(error.message);
+    }
   }
+
+  async function addNewTransaction(event) {
+    event.preventDefault();
+
+    // Basic validation
+    if (!name || !price || !datetime || !description) {
+      setErrorMessage("All fields are required.");
+      return;
+    }
+    if (isNaN(price) || Number(price) <= 0) {
+      setErrorMessage("Price must be a positive number.");
+      return;
+    }
+
+    try {
+      const response = await fetch(`${API_URL}/transaction`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name,
+          price: Number(price),
+          description,
+          datetime,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to add transaction");
+      }
+
+      const newTransaction = await response.json();
+      setTransactions((prev) => [...prev, newTransaction]);
+      setName("");
+      setPrice("");
+      setDatetime("");
+      setDescription("");
+      setErrorMessage(null);
+    } catch (error) {
+      setErrorMessage(error.message);
+    }
+  }
+
+  const balance = transactions.reduce((sum, t) => sum + Number(t.price), 0);
 
   return (
     <main>
-      <h1>{balance}</h1>
-      {errorMessage && <div style={{ color: 'red' }}>{errorMessage}</div>}
+      <h1>Balance: {balance}</h1>
+
+      {errorMessage && <div style={{ color: "red" }}>{errorMessage}</div>}
+
       <form onSubmit={addNewTransaction}>
         <div className="basic">
-          <input type="text" value={name} onChange={event => setName(event.target.value)} placeholder={"Name"} />
-          {errors.name && <div style={{ color: 'red' }}>{errors.name}</div>}
-          <input type="number" value={price} onChange={event => setPrice(event.target.value)} placeholder={"Price"} />
-          {errors.price && <div style={{ color: 'red' }}>{errors.price}</div>}
-          <input type="datetime-local" value={dateTime} onChange={event => setDateTime(event.target.value)} />
-          {errors.dateTime && <div style={{ color: 'red' }}>{errors.dateTime}</div>}
+          <input
+            type="text"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="Name"
+          />
+          <input
+            type="number"
+            value={price}
+            onChange={(e) => setPrice(e.target.value)}
+            placeholder="Price"
+          />
+          <input
+            type="datetime-local"
+            value={datetime}
+            onChange={(e) => setDatetime(e.target.value)}
+          />
         </div>
+
         <div className="description">
-          <input type="text" placeholder={"description"} value={description} onChange={event => setDescription(event.target.value)} />
-          {errors.description && <div style={{ color: 'red' }}>{errors.description}</div>}
+          <input
+            type="text"
+            placeholder="Description"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+          />
         </div>
-        <button>Add New Transaction</button>
+
+        <button
+          type="submit"
+          disabled={!name || !price || !datetime || !description}
+        >
+          Add new transaction
+        </button>
       </form>
+
       <div className="transactions">
-        {transactions.map((transaction, index) => (
-          <div className="transaction" key={index}>
-            <div className="left">
-              <div className="name">{transaction.name}</div>
-              <div className="description">{transaction.description}</div>
+        {transactions.length > 0 &&
+          transactions.map((transaction, index) => (
+            <div className="transaction" key={transaction._id || index}>
+              <div className="left">
+                <div className="name">{transaction.name}</div>
+                <div className="description">{transaction.description}</div>
+              </div>
+              <div className="right">
+                <div
+                  className={
+                    "price " + (transaction.price < 0 ? "red" : "green")
+                  }
+                >
+                  {transaction.price}
+                </div>
+                <div className="datetime">
+                  {new Date(transaction.datetime).toLocaleString()}
+                </div>
+              </div>
             </div>
-            <div className="right">
-              <div className="price-green">{transaction.price}</div>
-            </div>
-          </div>
-        ))}
+          ))}
       </div>
     </main>
   );
 }
 
 export default App;
-
