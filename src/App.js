@@ -1,3 +1,4 @@
+
 // import "./App.css";
 // import { useEffect, useState } from "react";
 
@@ -29,6 +30,8 @@
 
 //   async function addNewTransaction(event) {
 //     event.preventDefault();
+
+//     // Basic validation
 //     if (!name || !price || !datetime || !description) {
 //       setErrorMessage("All fields are required.");
 //       return;
@@ -37,6 +40,7 @@
 //       setErrorMessage("Price must be a positive number.");
 //       return;
 //     }
+
 //     try {
 //       const response = await fetch(`${API_URL}/transaction`, {
 //         method: "POST",
@@ -48,10 +52,12 @@
 //           datetime,
 //         }),
 //       });
+
 //       if (!response.ok) {
 //         const errorData = await response.json();
 //         throw new Error(errorData.error || "Failed to add transaction");
 //       }
+
 //       const newTransaction = await response.json();
 //       setTransactions((prev) => [...prev, newTransaction]);
 //       setName("");
@@ -64,11 +70,12 @@
 //     }
 //   }
 
-//   const balance = transactions.reduce((sum, t) => sum + t.price, 0);
+//   const balance = transactions.reduce((sum, t) => sum + Number(t.price), 0);
 
 //   return (
 //     <main>
 //       <h1>Balance: {balance}</h1>
+
 //       {errorMessage && <div style={{ color: "red" }}>{errorMessage}</div>}
 
 //       <form onSubmit={addNewTransaction}>
@@ -101,7 +108,12 @@
 //           />
 //         </div>
 
-//         <button type="submit">Add new transaction</button>
+//         <button
+//           type="submit"
+//           disabled={!name || !price || !datetime || !description}
+//         >
+//           Add new transaction
+//         </button>
 //       </form>
 
 //       <div className="transactions">
@@ -132,6 +144,7 @@
 // }
 
 // export default App;
+
 import "./App.css";
 import { useEffect, useState } from "react";
 
@@ -143,7 +156,7 @@ function App() {
   const [transactions, setTransactions] = useState([]);
   const [errorMessage, setErrorMessage] = useState(null);
 
-  const API_URL = process.env.REACT_APP_API_URL;
+  const API_URL = process.env.REACT_APP_API_URL; // e.g. "https://money-tracker-5.onrender.com/api"
 
   useEffect(() => {
     fetchTransactions();
@@ -151,7 +164,7 @@ function App() {
 
   async function fetchTransactions() {
     try {
-      const response = await fetch(`${API_URL}/transaction`);
+      const response = await fetch(`${API_URL}/transactions`);  // plural here
       if (!response.ok) throw new Error("Failed to fetch transactions");
       const data = await response.json();
       setTransactions(data);
@@ -164,7 +177,6 @@ function App() {
   async function addNewTransaction(event) {
     event.preventDefault();
 
-    // Basic validation
     if (!name || !price || !datetime || !description) {
       setErrorMessage("All fields are required.");
       return;
@@ -175,7 +187,7 @@ function App() {
     }
 
     try {
-      const response = await fetch(`${API_URL}/transaction`, {
+      const response = await fetch(`${API_URL}/transactions`, {  // plural here too
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
