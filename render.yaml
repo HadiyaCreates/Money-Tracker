@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: moneytracker-frontend
+    env: node
+    buildCommand: npm install && npm run build
+    startCommand: serve -s build
+    rootDir: .           # <--- current directory is root
+    publishPath: build
+    plan: free
